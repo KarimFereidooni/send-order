@@ -77,6 +77,7 @@
 
             Thread nonceThread = new Thread(new ThreadStart(() =>
             {
+                Log("Nonce thread started");
                 do
                 {
                     Thread.Sleep(Data.Instance.NonceInterval);
@@ -98,21 +99,38 @@
             }));
             Thread orderThread = new Thread(new ThreadStart(() =>
             {
+                Log("Order thread started");
+                Log($"Start send orders at {startsAt.Hours}:{startsAt.Minutes}:{startsAt.Seconds}:{startsAt.Milliseconds}");
+
+                // Get nonce 3 seconds before start send orders.
+                var x = startDateTime.AddSeconds(-3).Subtract(DateTime.Now);
+                if (x.TotalMilliseconds > 0)
+                {
+                    Log($"Waiting {x.TotalSeconds} seconds for start getting nonce...");
+                    Thread.Sleep((int)x.TotalMilliseconds);
+                }
+
+                try
+                {
+                    GetNonceAndSetOrderContent();
+                }
+                catch (Exception ex)
+                {
+                    LogError("Error: " + ex.Message);
+                    return;
+                }
+
+                nonceThread.Start();
+
+                x = startDateTime.Subtract(DateTime.Now);
+                if (x.TotalMilliseconds > 0)
+                {
+                    Log($"Waiting {x.TotalSeconds} seconds for start sending orders...");
+                    Thread.Sleep((int)x.TotalMilliseconds);
+                }
+
                 do
                 {
-                    if (orderContent == null)
-                    {
-                        try
-                        {
-                            GetNonceAndSetOrderContent();
-                        }
-                        catch (Exception ex)
-                        {
-                            LogError("Error: " + ex.Message);
-                            break;
-                        }
-                    }
-
                     try
                     {
                         var tasks = Enumerable.Range(0, Data.Instance.SendCount).Select(i =>
@@ -127,6 +145,11 @@
                     }
                     catch (Exception ex)
                     {
+                        while (ex.InnerException != null)
+                        {
+                            ex = ex.InnerException;
+                        }
+
                         LogError("Error: " + $"Error while sending orders: " + ex.Message);
                     }
 
@@ -140,20 +163,10 @@
                 }
                 while (true);
                 Log($"Finish");
+                Log($"Press any key to exit...");
             }));
             orderThread.Priority = ThreadPriority.Highest;
-            var x = startDateTime.Subtract(DateTime.Now);
-            Log($"Start send orders at {startsAt.Hours}:{startsAt.Minutes}:{startsAt.Seconds}:{startsAt.Milliseconds}");
-            if (x.TotalMilliseconds > 0)
-            {
-                Log($"Waiting {x.TotalSeconds} Seconds...");
-                Thread.Sleep((int)x.TotalMilliseconds);
-            }
-
             orderThread.Start();
-            Log("Order thread started");
-            nonceThread.Start();
-            Log("Nonce thread started");
             Console.ReadKey();
         }
 
@@ -175,7 +188,7 @@
             {
                 PooledConnectionLifetime = TimeSpan.FromMinutes(10),
                 PooledConnectionIdleTimeout = TimeSpan.FromMinutes(5),
-                MaxConnectionsPerServer = 10,
+                MaxConnectionsPerServer = 1000,
                 Proxy = Data.Instance.Proxy.Enabled ? new WebProxy(Data.Instance.Proxy.Value, false) : null,
             };
             HttpClient client = new HttpClient(socketsHandler);
