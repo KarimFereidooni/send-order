@@ -19,8 +19,8 @@
         {
             Log($"Start running app");
 
-            var nonceUrl = $"{"https:"}//online.agah.com/Order/GenerateNonce";
-            var sendOrderUrl = $"{"https:"}//online.agah.com/Order/SendOrder";
+            var nonceUrl = "https://online.agah.com/Order/GenerateNonce";
+            var sendOrderUrl = "https://online.agah.com/Order/SendOrder";
             using var httpClient = GetHttpClient();
             var emptyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
 
