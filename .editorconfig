@@ -1,5 +1,7 @@
 ﻿[*.cs]
 
+dotnet_diagnostic.SA0001.severity = none
+
 # S125: Sections of code should not be commented out
 dotnet_diagnostic.S125.severity = none
 
