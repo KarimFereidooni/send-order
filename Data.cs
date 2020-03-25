@@ -6,7 +6,6 @@
     public class Data
     {
         private static Data instance;
-
         public static Data Instance
         {
             get
