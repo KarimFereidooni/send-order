@@ -4,12 +4,10 @@
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Text;
     using System.Threading;
-    using System.Threading.Tasks;
 
     internal static class Program
     {
@@ -133,15 +131,20 @@
                 {
                     try
                     {
-                        var tasks = Enumerable.Range(0, Data.Instance.SendCount).Select(i =>
-                        {
-                            return httpClient.PostAsync(sendOrderUrl, orderContent);
-                        });
+                        // var tasks = Enumerable.Range(0, Data.Instance.SendCount).Select(i =>
+                        // {
+                        //     return httpClient.PostAsync(sendOrderUrl, orderContent);
+                        // });
                         Log($"Sending {Data.Instance.SendCount} order...");
                         var ordersStopwatch = Stopwatch.StartNew();
-                        Task.WhenAll(tasks).Wait();
+                        for (int i = 0; i < Data.Instance.SendCount; i++)
+                        {
+                            httpClient.PostAsync(sendOrderUrl, orderContent);
+                        }
+
+                        // Task.WhenAll(tasks).Wait();
                         ordersStopwatch.Stop();
-                        Log($"{Data.Instance.SendCount} orders were sent in {ordersStopwatch.Elapsed.TotalSeconds} second");
+                        Log($"{Data.Instance.SendCount} order(s) were sent in {ordersStopwatch.Elapsed.TotalSeconds} second");
                     }
                     catch (Exception ex)
                     {
