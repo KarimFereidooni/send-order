@@ -25,13 +25,13 @@
         }
 
         public Proxy Proxy { get; set; }
+        public string Url { get; set; }
         public Order Order { get; set; }
         public string Cookie { get; set; }
         public string StartsAt { get; set; }
         public string EndsAt { get; set; }
         public int SendCount { get; set; }
         public int SendInterval { get; set; }
-        public int NonceInterval { get; set; }
     }
 
     public class Proxy
@@ -42,26 +42,21 @@
 
     public class Order
     {
-        public int Id { get; set; }
-        public int CustomerId { get; set; }
-        public string CustomerTitle { get; set; }
-        public string OrderSide { get; set; }
-        public int OrderSideId { get; set; }
-        public int Price { get; set; }
-        public int Quantity { get; set; }
-        public int Value { get; set; }
-        public string ValidityDate { get; set; }
+        public bool IsSymbolCautionAgreement { get; set; }
+        public bool CautionAgreementSelected { get; set; }
+        public bool IsSymbolSepahAgreement { get; set; }
+        public bool SepahAgreementSelected { get; set; }
+        public int OrderCount { get; set; }
+        public int OrderPrice { get; set; }
+        public int FinancialProviderId { get; set; }
         public string MinimumQuantity { get; set; }
-        public string DisclosedQuantity { get; set; }
-        public int ValidityType { get; set; }
-        public int InstrumentId { get; set; }
-        public string InstrumentIsin { get; set; }
-        public string InstrumentName { get; set; }
-        public int BankAccountId { get; set; }
-        public int ExpectedRemainingQuantity { get; set; }
-        public int TradedQuantity { get; set; }
-        public string CategoryId { get; set; }
-        public int RemainingQuantity { get; set; }
-        public int OrderExecuterId { get; set; }
+        public int MaxShow { get; set; }
+        public int OrderId { get; set; }
+        public string Isin { get; set; }
+        public int OrderSide { get; set; }
+        public int OrderValidity { get; set; }
+        public string OrderValiditydate { get; set; }
+        public bool ShortSellIsEnabled { get; set; }
+        public int ShortSellIncentivePercent { get; set; }
     }
 }
