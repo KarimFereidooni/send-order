@@ -2,6 +2,7 @@
 {
     using Newtonsoft.Json;
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.Net;
@@ -19,6 +20,43 @@
 
             var nonceUrl = "https://online.agah.com/Order/GenerateNonce";
             var sendOrderUrl = "https://online.agah.com/Order/SendOrder";
+            Console.Write("Send order URL (https://online.agah.com/Order/SendOrder):");
+            var line = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(line))
+            {
+                sendOrderUrl = line;
+            }
+
+            Console.Write("Generate nonce URL (https://online.agah.com/Order/GenerateNonc):");
+            line = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(line))
+            {
+                nonceUrl = line;
+            }
+
+            Console.Write("Order content:");
+            List<string> lines = new List<string>();
+            do
+            {
+                line = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    lines.Add(line);
+                }
+            }
+            while (!string.IsNullOrWhiteSpace(line));
+            for (int i = 0; i < lines.Count; i++)
+            {
+                lines[i] = "\"" + lines[i].Substring(0, lines[i].IndexOf(':')) + "\"" + lines[i].Substring(lines[i].IndexOf(':'), lines[i].Length - lines[i].IndexOf(':'));
+            }
+
+            Console.Write("Cookie:");
+            line = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(line))
+            {
+                Data.Instance.Cookie = line;
+            }
+
             using var httpClient = GetHttpClient();
             var emptyContent = new StringContent(string.Empty, Encoding.UTF8, "application/json");
 
@@ -69,7 +107,17 @@
                 }
 
                 Log("Nonce is: " + nonceValue);
-                string orderPayload = JsonConvert.SerializeObject(new { orderModel = Data.Instance.Order, nonce = nonceValue });
+                string orderPayload;
+                if (lines.Count > 0)
+                {
+                    string orderModel = "{" + string.Join(",", lines) + "}";
+                    orderPayload = $"{{\"orderModel\":{orderModel},\"nonce\":\"{nonceValue}\"}}";
+                }
+                else
+                {
+                    orderPayload = JsonConvert.SerializeObject(new { orderModel = Data.Instance.Order, nonce = nonceValue });
+                }
+
                 orderContent = new StringContent(orderPayload, Encoding.UTF8, "application/json");
             }
 
